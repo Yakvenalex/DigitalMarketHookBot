@@ -27,10 +27,24 @@ class AddProduct(StatesGroup):
 @admin_router.callback_query(F.data == "admin_panel", F.from_user.id.in_(settings.ADMIN_IDS))
 async def start_admin(call: CallbackQuery):
     await call.answer('Доступ в админ-панель разрешен!')
-    await call.message.edit_text(
-        text="Вам разрешен доступ в админ-панель. Выберите необходимое действие.",
-        reply_markup=admin_kb()
-    )
+    try:
+        await call.message.edit_text(
+            text="Вам разрешен доступ в админ-панель. Выберите необходимое действие.",
+            reply_markup=admin_kb()
+        )
+    except Exception as e:
+        try:
+            await call.message.delete()
+            await call.message.answer(
+                text="Вам разрешен доступ в админ-панель. Выберите необходимое действие.",
+                reply_markup=admin_kb()
+            )
+        except Exception as e:
+            await call.message.answer(
+                text="Произошла ошибка при открытии админ-панели. Пожалуйста, попробуйте еще раз.",
+                reply_markup=admin_kb()
+            )
+
 
 
 @admin_router.callback_query(F.data == 'statistic', F.from_user.id.in_(settings.ADMIN_IDS))
